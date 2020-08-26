@@ -1,1 +1,0 @@
-{"sentence": ["Tom", "visited", "all", "their", "friends", "."], "s_start": 462, "ner": [[466, 466, "PER"]], "relation": [], "event": [[[463, "Contact.Meet"], [466, 466, "Entity"]]]}

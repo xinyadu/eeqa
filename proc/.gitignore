@@ -1,0 +1,7 @@
+*__pycache__
+*.pyc
+data/ace-event
+models/*
+pretrained/*
+predictions/*
+**/stanford*/*
