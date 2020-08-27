@@ -78,4 +78,4 @@ Template 2 (Role + Type): ```./question_templates/arg_queries.csv```
 **Template 3 (Annotation Guideline): ```./question_templates/description_queries_new.csv```**
 
 ---	
-Unseen args for analysis ```all_args``` and ```unseen_args```
+Unseen args for analysis, see ```unseen_args``` and ```all_args```
