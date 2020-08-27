@@ -26,7 +26,7 @@ python code/run_args_qa.py \
   --train_batch_size 8 \
   --eval_batch_size 8  \
   --learning_rate 4e-5 \
-  --num_train_epochs 3 \
+  --num_train_epochs 6 \
   --output_dir args_qa_output \
   --nth_query 5 \
   --normal_file $ARG_QUERY_FILE \

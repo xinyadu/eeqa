@@ -18,7 +18,7 @@ python code/run_trigger_qa.py \
   --train_batch_size 8 \
   --eval_batch_size 8  \
   --eval_per_epoch 20 \
-  --num_train_epochs 3 \
+  --num_train_epochs 6 \
   --output_dir trigger_qa_output \
   --learning_rate 4e-5 \
   --nth_query 5 \
