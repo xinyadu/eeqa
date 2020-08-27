@@ -53,9 +53,6 @@ See ```requirements.txt```
 	- Get results on unseen arguments (Train on a set excluding unseen arguments and test on those):
 	  ```bash ./code/script_args_qa_unseen.sh```
 	
-* **Debug**
-   
-   ```bash ./code/script_debug.sh```
 	
 <!--### Analysis
 
