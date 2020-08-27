@@ -15,6 +15,7 @@ import re
 import string
 import sys
 from io import open
+import copy
 
 import numpy as np
 import torch
@@ -369,6 +370,8 @@ def evaluate(args, model, device, eval_dataloader, eval_examples, gold_examples,
     # preds, nbest_preds, na_probs = \
     preds = make_predictions(eval_examples, eval_features, all_results,
                          args.n_best_size, args.max_answer_length, args.larger_than_cls)
+    preds_init = copy.deepcopy(preds)
+
     # get all_gold in format: [event_type_argument_type, [start_offset, end_offset]]
     all_gold = collections.OrderedDict()
     for (example_id, example) in enumerate(gold_examples):
@@ -404,8 +407,6 @@ def evaluate(args, model, device, eval_dataloader, eval_examples, gold_examples,
     for argument in new_preds:
         if argument[-2] < best_na_thresh:
             final_new_preds.append(argument[:-2] + argument[-1:]) # no na_prob
-
-    import ipdb; ipdb.set_trace()
 
     ################################################################################################################################################
     # # logging for DEBUG results
@@ -501,7 +502,7 @@ def evaluate(args, model, device, eval_dataloader, eval_examples, gold_examples,
 
 
     result = collections.OrderedDict([('prec_c',  prec_c), ('recall_c',  recall_c), ('f1_c', f1_c), ('prec_i',  prec_i), ('recall_i',  recall_i), ('f1_i', f1_i), ('best_na_thresh', best_na_thresh)])
-    return result, final_new_preds
+    return result, preds_init
 
 
 def main(args):
@@ -727,8 +728,8 @@ def main(args):
             for key in result:
                 writer.write("%s = %s\n" % (key, str(result[key])))
         with open(os.path.join(args.output_dir, "arg_predictions.json"), "w") as writer:
-            for line in preds:
-                writer.write(json.dumps(line, default=int) + "\n")
+            for key in preds:
+                writer.write(json.dumps(preds[key], default=int) + "\n")
 
         ### old
 

@@ -14,6 +14,7 @@ import re
 import string
 import sys
 from io import open
+import copy
 
 import numpy as np
 import torch
@@ -328,6 +329,7 @@ def evaluate(args, model, device, eval_dataloader, eval_examples, gold_examples,
     # preds, nbest_preds, na_probs = \
     preds = make_predictions(eval_examples, eval_features, all_results,
                          args.n_best_size, args.max_answer_length, args.larger_than_cls)
+    preds_init = copy.deepcopy(preds)
 
     # get all_gold in format: [event_type_argument_type, [start_offset, end_offset]]
     all_gold = collections.OrderedDict()
@@ -422,7 +424,7 @@ def evaluate(args, model, device, eval_dataloader, eval_examples, gold_examples,
 
     result = collections.OrderedDict()
     result = collections.OrderedDict([('prec_c',  prec_c), ('recall_c',  recall_c), ('f1_c', f1_c), ('prec_i',  prec_i), ('recall_i',  recall_i), ('f1_i', f1_i)])
-    return result, preds
+    return result, preds_init
 
 
 def main(args):
@@ -583,7 +585,7 @@ def main(args):
                         save_model = False
                         if args.do_eval:
                             # result, _, _ = evaluate(args, model, device, eval_dataset, eval_dataloader, eval_examples, eval_features)
-                            result = evaluate(args, model, device, eval_dataloader, eval_examples, gold_examples, eval_features)
+                            result, preds = evaluate(args, model, device, eval_dataloader, eval_examples, gold_examples, eval_features)
                             # import ipdb; ipdb.set_trace()
                             model.train()
                             result['global_step'] = global_step
@@ -642,10 +644,14 @@ def main(args):
             model.half()
         model.to(device)
 
-        result = evaluate(args, model, device, eval_dataloader, eval_examples, gold_examples, eval_features)
+        result, preds = evaluate(args, model, device, eval_dataloader, eval_examples, gold_examples, eval_features)
+
+        with open(os.path.join(args.output_dir, "test_results.txt"), "w") as writer:
+            for key in result:
+                writer.write("%s = %s\n" % (key, str(result[key])))
         with open(os.path.join(args.output_dir, "arg_predictions.json"), "w") as writer:
-            for line in preds:
-                writer.write(json.dumps(line, default=int) + "\n")
+            for key in preds:
+                writer.write(json.dumps(preds[key], default=int) + "\n")
         
         ### old
 
