@@ -369,7 +369,6 @@ def evaluate(args, model, device, eval_dataloader, eval_examples, gold_examples,
     # preds, nbest_preds, na_probs = \
     preds = make_predictions(eval_examples, eval_features, all_results,
                          args.n_best_size, args.max_answer_length, args.larger_than_cls)
-
     # get all_gold in format: [event_type_argument_type, [start_offset, end_offset]]
     all_gold = collections.OrderedDict()
     for (example_id, example) in enumerate(gold_examples):
@@ -405,6 +404,8 @@ def evaluate(args, model, device, eval_dataloader, eval_examples, gold_examples,
     for argument in new_preds:
         if argument[-2] < best_na_thresh:
             final_new_preds.append(argument[:-2] + argument[-1:]) # no na_prob
+
+    import ipdb; ipdb.set_trace()
 
     ################################################################################################################################################
     # # logging for DEBUG results
@@ -500,7 +501,7 @@ def evaluate(args, model, device, eval_dataloader, eval_examples, gold_examples,
 
 
     result = collections.OrderedDict([('prec_c',  prec_c), ('recall_c',  recall_c), ('f1_c', f1_c), ('prec_i',  prec_i), ('recall_i',  recall_i), ('f1_i', f1_i), ('best_na_thresh', best_na_thresh)])
-    return result
+    return result, final_new_preds
 
 
 def main(args):
@@ -661,7 +662,7 @@ def main(args):
                         save_model = False
                         if args.do_eval:
                             # result, _, _ = evaluate(args, model, device, eval_dataset, eval_dataloader, eval_examples, eval_features)
-                            result = evaluate(args, model, device, eval_dataloader, eval_examples, gold_examples, eval_features)
+                            result, preds = evaluate(args, model, device, eval_dataloader, eval_examples, gold_examples, eval_features)
                             # import ipdb; ipdb.set_trace()
                             model.train()
                             result['global_step'] = global_step
@@ -720,8 +721,15 @@ def main(args):
             model.half()
         model.to(device)
 
-        result = evaluate(args, model, device, eval_dataloader, eval_examples, gold_examples, eval_features, pred_only=True)
-        
+        result, preds = evaluate(args, model, device, eval_dataloader, eval_examples, gold_examples, eval_features, pred_only=True)
+
+        with open(os.path.join(args.output_dir, "test_results.txt"), "w") as writer:
+            for key in result:
+                writer.write("%s = %s\n" % (key, str(result[key])))
+        with open(os.path.join(args.output_dir, "arg_predictions.json"), "w") as writer:
+            for line in preds:
+                writer.write(json.dumps(line, default=int) + "\n")
+
         ### old
 
         # na_prob_thresh = 1.0

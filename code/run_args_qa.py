@@ -1,5 +1,4 @@
-# Copyright (c) 2019, Facebook, Inc. and its affiliates. All Rights Reserved
-"""Run BERT on SQuAD."""
+"""Run qa model to extract arguments."""
 
 from __future__ import absolute_import, division, print_function
 
@@ -423,7 +422,7 @@ def evaluate(args, model, device, eval_dataloader, eval_examples, gold_examples,
 
     result = collections.OrderedDict()
     result = collections.OrderedDict([('prec_c',  prec_c), ('recall_c',  recall_c), ('f1_c', f1_c), ('prec_i',  prec_i), ('recall_i',  recall_i), ('f1_i', f1_i)])
-    return result
+    return result, preds
 
 
 def main(args):
@@ -644,6 +643,9 @@ def main(args):
         model.to(device)
 
         result = evaluate(args, model, device, eval_dataloader, eval_examples, gold_examples, eval_features)
+        with open(os.path.join(args.output_dir, "arg_predictions.json"), "w") as writer:
+            for line in preds:
+                writer.write(json.dumps(line, default=int) + "\n")
         
         ### old
 

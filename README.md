@@ -23,7 +23,7 @@ See ```requirements.txt```
    <!-- normal sequence labeling -->
    <!-- ``` bash ./code/script_trigger.sh ``` -->
 	
-	QA based model ([CLS] verb [SEP] input sentence [SEP])
+	QA based model ([CLS] verb [SEP] input sentence [SEP]):
 	``` bash ./code/script_trigger_qa.sh ```
 	
 	
@@ -38,7 +38,7 @@ See ```requirements.txt```
 	<!-- Ensemble with template 2 & 3 -->
 	<!-- ```bash ./code/script_args_qa_ensem.sh``` -->
 
-	- Get results on unseen arguments (Train on a set excluding unseen arguments and test on those)
+	- Get results on unseen arguments (Train on a set excluding unseen arguments and test on those):
 	  ```bash ./code/script_args_qa_unseen.sh```
 	
 * **Debug**
