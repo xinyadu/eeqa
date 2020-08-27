@@ -8,6 +8,16 @@ Question answering for event extraction (trigger detection and argument extracti
   <img src='figs/framework.png' width="800px">
 </p>
 
+
+If you use my code, please cite:
+
+	@article{du2020eeqa,
+	  title={Event Extraction by Answering (Almost) Natural Questions},
+	  author={Du, Xinya and Cardie, Claire},
+	  journal={arXiv preprint arXiv:2004.13625},
+	  year={2020}
+	}
+
 ## Preprocessing (for ACE data)
   Read ```./proc/README.md``` for details
 
@@ -79,3 +89,4 @@ Template 2 (Role + Type): ```./question_templates/arg_queries.csv```
 
 ---	
 Unseen args for analysis, see ```unseen_args``` and ```all_args```
+
