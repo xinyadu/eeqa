@@ -1,7 +1,7 @@
 # This repo is used for data pre-processing for ACE event
 
 
-### ACE05 Event
+### [ACE05](https://catalog.ldc.upenn.edu/LDC2006T06) Event
 
 #### Creating the dataset
 
@@ -46,4 +46,4 @@ When finished, you should `conda deactivate` the `ace-event-preprocess` environm
 
 ### Adaptation
 
-The scripts are adapted with the [original repo](https://github.com/dwadden/dygiepp).
+The scripts are adapted with the [Dygiepp repo](https://github.com/dwadden/dygiepp).
