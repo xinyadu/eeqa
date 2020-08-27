@@ -17,6 +17,8 @@ If you use my code, please cite:
 	  journal={arXiv preprint arXiv:2004.13625},
 	  year={2020}
 	}
+	
+Feel free to ask questions: xdu [at] cs [dot] cornell [dot] edu. http://www.cs.cornell.edu/~xdu/
 
 ## Preprocessing (for ACE data)
   Read ```./proc/README.md``` for details
