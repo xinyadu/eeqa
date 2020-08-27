@@ -1,4 +1,4 @@
-"""Run qa model to extract arguments."""
+"""Run QA model to extract arguments."""
 
 from __future__ import absolute_import, division, print_function
 

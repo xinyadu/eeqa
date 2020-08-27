@@ -1,4 +1,4 @@
-"""Run qa model to detect triggers."""
+"""Run QA model to detect triggers."""
 
 from __future__ import absolute_import, division, print_function
 

@@ -3,7 +3,7 @@
 export ACE_DIR=./proc/data/ace-event/processed-data/json
 
 export ARG_QUERY_FILE=./question_templates/arg_queries.csv
-export DES_QUERY_FILE=./question_templates/description_queries_new.csv
+export DES_QUERY_FILE=./question_templates/description_queries.csv
 export UNSEEN_ARG_FILE=./question_templates/unseen_args
 
 

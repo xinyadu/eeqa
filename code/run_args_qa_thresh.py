@@ -1,5 +1,4 @@
-# Copyright (c) 2019, Facebook, Inc. and its affiliates. All Rights Reserved
-"""Run BERT on SQuAD."""
+"""Run QA on argument extraction (with threshold)."""
 
 from __future__ import absolute_import, division, print_function
 
