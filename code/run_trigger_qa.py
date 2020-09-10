@@ -56,9 +56,10 @@ class trigger_category_vocab(object):
         self.category_to_index["None"] = 0
         self.index_to_category[0] = "None"
         for file in files_list:
+            print(file)
             with open(file) as f:
-                for line in f:
-                    example = json.loads(line)
+                lines = json.load(f)
+                for example in lines:
                     events, sentence = example["event"], example["sentence"] 
                     if len(sentence) > self.max_sent_length: self.max_sent_length = len(sentence)
                     for event in events:
@@ -109,8 +110,8 @@ def read_ace_examples(nth_query, input_file, tokenizer, category_vocab, is_train
     examples = []
     sentence_id = 0
     with open(input_file, "r", encoding='utf-8') as f:
-        for line in f:
-            example = json.loads(line)
+        lines = json.load(f)
+        for example in lines:
             sentence, events, s_start = example["sentence"], example["event"], example["s_start"]
             offset_category = dict()
             for event in events:
@@ -571,8 +572,10 @@ def main(args):
             for key in result:
                 writer.write("%s = %s\n" % (key, str(result[key])))
         with open(os.path.join(args.output_dir, "trigger_predictions.json"), "w") as writer:
+            to_write=[]
             for line in preds:
-                writer.write(json.dumps(line, default=int) + "\n")
+                to_write.append(line)
+            writer.write(json.dumps(to_write, default=int))
 
 if __name__ == "__main__":
         parser = argparse.ArgumentParser()

@@ -87,8 +87,9 @@ def read_ace_examples(input_file, is_training):
     """Read a ACE json file into a list of AceExample."""
     examples = []
     with open(input_file, "r", encoding='utf-8') as f:
-        for line in f:
-            example = json.loads(line)
+        print(input_file)
+        lines = json.load(f)
+        for example in lines:
             sentence, events, s_start = example["sentence"], example["event"], example["s_start"]
             example = AceExample(sentence=sentence, events=events, s_start=s_start)
             examples.append(example)
