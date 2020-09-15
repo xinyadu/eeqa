@@ -1,4 +1,4 @@
-# Event Extraction by Answering (Almost) Natural Questions
+# Event Extraction by Answering (Almost) Natural Questions (EMNLP'20)
 
 Question answering for event extraction (trigger detection and argument extraction with various questioning strategies). 
 
