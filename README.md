@@ -14,9 +14,10 @@ If you use my code, please cite:
 	@article{du2020eeqa,
 	  title={Event Extraction by Answering (Almost) Natural Questions},
 	  author={Du, Xinya and Cardie, Claire},
-	  journal={arXiv preprint arXiv:2004.13625},
+	  journal={Empirical Methods in Natural Language Processing (EMNLP)},
 	  year={2020}
 	}
+	
 	
 Feel free to ask questions: xdu [at] cs [dot] cornell [dot] edu. http://www.cs.cornell.edu/~xdu/
 
