@@ -27,6 +27,9 @@ from pytorch_pretrained_bert.optimization import BertAdam, warmup_linear
 from pytorch_pretrained_bert.tokenization import (BasicTokenizer,
                                                   BertTokenizer,
                                                   whitespace_tokenize)
+from spacy.lang.en import English # updated
+nlp = English()
+nlp.add_pipe(nlp.create_pipe('sentencizer')) # updated
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(name)s - %(message)s',
                     datefmt='%m/%d/%Y %H:%M:%S',
@@ -104,6 +107,87 @@ class InputFeatures(object):
         self.labels = labels
 
 
+#Used when only sentences are available
+def read_arb_examples(nth_query, input_files, tokenizer, category_vocab, is_training):
+    #Read arbitrary examples
+    features = []
+    examples = []
+    sentence_id = 0
+    for dir in input_files:
+        with open(dir, "r", encoding='utf-8') as f:
+            raw_text = f.read()
+            doc = nlp(raw_text)
+            sentences = [sent.string.strip() for sent in doc.sents]
+            for sentence in sentences:           
+                sentence = sentence.split()
+
+                tokens = []
+                segment_ids = []
+                in_sentence = []
+                labels = []
+
+                # add [CLS]
+                tokens.append("[CLS]")
+                segment_ids.append(0)
+                in_sentence.append(0)
+
+                # add query
+                query = candidate_queries[nth_query]
+                for (i, token) in enumerate(query):
+                    sub_tokens = tokenizer.tokenize(token)
+                    tokens.append(sub_tokens[0])
+                    segment_ids.append(0)
+                    in_sentence.append(0)
+
+                # add [SEP]
+                tokens.append("[SEP]")
+                segment_ids.append(0)
+                in_sentence.append(0)
+                
+                # add sentence
+                for (i, token) in enumerate(sentence):
+                    sub_tokens = tokenizer.tokenize(token)
+                    tokens.append(sub_tokens[0])
+                    segment_ids.append(1)
+                    in_sentence.append(1)
+
+                # add [SEP]
+                tokens.append("[SEP]")
+                segment_ids.append(1)
+                in_sentence.append(0)
+
+                input_ids = tokenizer.convert_tokens_to_ids(tokens)
+                input_mask = [1] * len(input_ids)
+                while len(input_ids) < category_vocab.max_sent_length:
+                    input_ids.append(0)
+                    input_mask.append(0)
+                    segment_ids.append(0)
+                    in_sentence.append(0)
+
+                # print(len(input_ids), category_vocab.max_sent_length)
+                assert len(input_ids) == category_vocab.max_sent_length
+                assert len(segment_ids) == category_vocab.max_sent_length
+                assert len(in_sentence) == category_vocab.max_sent_length
+                assert len(input_mask) == category_vocab.max_sent_length
+
+                features.append(
+                    InputFeatures(
+                        # unique_id=unique_id,
+                        # example_index=example_index,
+                        sentence_id=sentence_id,
+                        tokens=tokens,
+                        # token_to_orig_map=token_to_orig_map,
+                        # token_is_max_context=token_is_max_context,
+                        input_ids=input_ids,
+                        input_mask=input_mask,
+                        segment_ids=segment_ids,
+                        in_sentence=in_sentence,
+                        labels=labels))
+                examples.append(sentence)
+                # if len(tokens) > 20 and sum(labels) > 0:
+                    # import ipdb; ipdb.set_trace()
+                sentence_id += 1
+    return examples, features   
 def read_ace_examples(nth_query, input_file, tokenizer, category_vocab, is_training):
     """Read an ACE json file, transform to features"""
     features = []
@@ -198,7 +282,35 @@ def read_ace_examples(nth_query, input_file, tokenizer, category_vocab, is_train
 
     return examples, features   
 
+def infer(args, eval_examples, category_vocab, model, device, eval_dataloader):
+    # eval_examples, eval_features, na_prob_thresh=1.0, pred_only=False):
+    all_results = []
+    model.eval()
 
+    # get predictions
+    pred_triggers = dict()
+    for _, (sentence_id, input_ids, segmend_ids, in_sentence, input_mask) in enumerate(eval_dataloader):
+        input_ids = input_ids.to(device)
+        segmend_ids = segmend_ids.to(device)
+        input_mask = input_mask.to(device)
+        with torch.no_grad():
+            logits = model(input_ids, token_type_ids =  segmend_ids, attention_mask = input_mask)
+        for i, in_sent in enumerate(in_sentence):
+            logits_i = logits[i].detach().cpu()
+            _, tag_seq = torch.max(logits_i, 1)
+            tag_seq = tag_seq.tolist()
+
+            decoded_tag_seg = []
+            for idj, j in enumerate(in_sent):
+                if j:
+                    decoded_tag_seg.append(category_vocab.index_to_category[tag_seq[idj]])
+            sentence_triggers = []
+            for offset, tag in enumerate(decoded_tag_seg):
+                if tag != "None":
+                    sentence_triggers.append([offset, tag])
+
+            pred_triggers[sentence_id[i]] = sentence_triggers            
+    return pred_triggers        
 
 def evaluate(args, eval_examples, category_vocab, model, device, eval_dataloader, pred_only=False):
     # eval_examples, eval_features, na_prob_thresh=1.0, pred_only=False):
@@ -539,6 +651,33 @@ def main(args):
                                         writer.write("%s = %s\n" % (key, str(best_result[key])))
 
             del model
+    if args.do_infer:
+        #To be updated later
+        files = ["proc/FFO/Stories/32_The_Snow-White_Heart.txt"]
+        eval_examples, eval_features = read_arb_examples(input_files=files, nth_query=args.nth_query, tokenizer=tokenizer, category_vocab=category_vocab, is_training=False)
+        all_sentence_id = torch.tensor([f.sentence_id for f in eval_features], dtype=torch.long)
+        all_input_ids = torch.tensor([f.input_ids for f in eval_features], dtype=torch.long)
+        all_segmend_ids = torch.tensor([f.segment_ids for f in eval_features], dtype=torch.long)
+        all_in_sentence = torch.tensor([f.in_sentence for f in eval_features], dtype=torch.long)
+        all_input_mask = torch.tensor([f.input_mask for f in eval_features], dtype=torch.long)
+
+        eval_data = TensorDataset(all_sentence_id, all_input_ids, all_segmend_ids, all_in_sentence, all_input_mask)
+        eval_dataloader = DataLoader(eval_data, batch_size=1)
+
+
+        model = BertForTriggerClassification.from_pretrained(args.output_dir, num_labels=len(category_vocab.index_to_category))
+        if args.fp16:
+            model.half()
+        model.to(device)
+        preds = infer(args, eval_examples, category_vocab, model, device, eval_dataloader)
+
+        
+        with open(os.path.join(args.output_dir, "trigger_predictions.json"), "w") as writer:
+            to_write=[]
+            for line in preds:
+                to_write.append(line)
+            writer.write(json.dumps(to_write, default=int))
+        
 
     if args.do_eval:
         if args.eval_test:
@@ -589,6 +728,7 @@ if __name__ == "__main__":
                             help="How many times it evaluates on dev set per epoch")
         parser.add_argument("--do_train", action='store_true', help="Whether to run training.")
         parser.add_argument("--do_eval", action='store_true', help="Whether to run eval on the dev set.")
+        parser.add_argument("--do_infer", action='store_true', help="Whether to run inference on a set of files given.")
         parser.add_argument("--do_lower_case", action='store_true', help="Set this flag if you are using an uncased model.")
         parser.add_argument("--eval_test", action='store_true', help='Wehther to run eval on the test set.')
         parser.add_argument("--train_batch_size", default=32, type=int, help="Total batch size for training.")

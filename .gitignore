@@ -134,3 +134,6 @@ dmypy.json
 *.o*
 archive
 code/script_trigger_debug.sh
+
+.txt
+proc/FFO/Stories/

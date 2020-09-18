@@ -8,8 +8,8 @@ echo "                                          query 5 'verb'                  
 echo "=========================================================================================="
 
 python code/run_trigger_qa.py \
+  --do_infer \
   --do_eval \
-  --save_model \
   --eval_test \
   --model bert-base-uncased \
   --train_file $ACE_DIR/train_convert.json \
