@@ -11,11 +11,12 @@ Question answering for event extraction (trigger detection and argument extracti
 
 If you use my code, please cite:
 
-	@article{du2020eeqa,
-	  title={Event Extraction by Answering (Almost) Natural Questions},
-	  author={Du, Xinya and Cardie, Claire},
-	  journal={Empirical Methods in Natural Language Processing (EMNLP)},
-	  year={2020}
+	@inproceedings{du2020event,
+	    title = {Event Extraction by Answering (Almost) Natural Questions},
+	    author={Du, Xinya and Cardie, Claire},
+	    booktitle = "Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing",
+	    year = "2020",
+	    publisher = "Association for Computational Linguistics",
 	}
 	
 	
