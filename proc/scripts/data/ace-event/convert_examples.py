@@ -1,13 +1,15 @@
 from os import path
 import json
 import collections
+import sys
 
-output_dir = "./data/ace-event/processed-data/json"
+output_dir = "./data/ace-event/processed-data/default-settings/json"
 for fold in ["train", "dev", "test"]:
     g_convert = open(path.join(output_dir, fold + "_convert.json"), "w")
+    to_write = []
     with open(path.join(output_dir, fold + ".json"), "r") as g:
-        for line in g:
-            line = json.loads(line)
+        lines = json.load(g)
+        for line in lines:
             sentences = line["sentences"]
             ner = line["ner"]
             relations = line["relations"]
@@ -25,6 +27,8 @@ for fold in ["train", "dev", "test"]:
                 sentence_annotated["ner"] = ner
                 sentence_annotated["relation"] = relation
                 sentence_annotated["event"] = event
-
+                
                 # if sentence_annotated["s_start"]>5:
-                g_convert.write(json.dumps(sentence_annotated, default=int) + "\n")
+                to_write.append(sentence_annotated)
+
+        g_convert.write(json.dumps(to_write, default=int))

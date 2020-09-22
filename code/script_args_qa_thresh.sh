@@ -19,10 +19,10 @@ python code/run_args_qa_thresh.py \
   --do_train \
   --do_eval \
   --model bert-base-uncased \
-  --train_file $ACE_DIR/toy.json \
+  --train_file $ACE_DIR/train_convert.json \
   --dev_file $ACE_PRE_DIR/trigger_predictions.json \
   --test_file $ACE_PRE_DIR/trigger_predictions.json \
-  --gold_file $ACE_DIR/toy.json \
+  --gold_file $ACE_DIR/test_convert.json \
   --train_batch_size 8 \
   --eval_batch_size 8  \
   --learning_rate 4e-5 \
