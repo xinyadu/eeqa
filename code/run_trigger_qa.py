@@ -524,13 +524,18 @@ def main(args):
                                             (args.eval_metric, str(lr), epoch, result["prec_c"], result["recall_c"], result["f1_c"], result["prec_i"], result["recall_i"], result["f1_i"]))
                         else:
                             save_model = True
+                        if int(args.num_train_epochs)-epoch<3:
+                            save_model = True
                         if save_model:
                             model_to_save = model.module if hasattr(model, 'module') else model
-                            output_model_file = os.path.join(args.output_dir, WEIGHTS_NAME)
-                            output_config_file = os.path.join(args.output_dir, CONFIG_NAME)
+                            subdir = os.path.join(args.output_dir, "epoch{epoch}-step{step}".format(epoch=epoch, step=step))
+                            if not os.path.exists(subdir):
+                                os.makedirs(subdir)
+                            output_model_file = os.path.join(subdir, WEIGHTS_NAME)
+                            output_config_file = os.path.join(subdir, CONFIG_NAME)
                             torch.save(model_to_save.state_dict(), output_model_file)
                             model_to_save.config.to_json_file(output_config_file)
-                            tokenizer.save_vocabulary(args.output_dir)
+                            tokenizer.save_vocabulary(subdir)
                             if best_result:
                                 with open(os.path.join(args.output_dir, "eval_results.txt"), "w") as writer:
                                     # for key in sorted(best_result.keys()):
@@ -559,18 +564,18 @@ def main(args):
 
         # BertForTriggerClassification.from_pretrained(args.model, cache_dir=PYTORCH_PRETRAINED_BERT_CACHE, num_labels=len(category_vocab.index_to_category))
         if args.add_lstm:
-            model = BertLSTMForTriggerClassification.from_pretrained(args.output_dir, num_labels=len(category_vocab.index_to_category))
+            model = BertLSTMForTriggerClassification.from_pretrained(args.model_dir, num_labels=len(category_vocab.index_to_category))
         else:
-            model = BertForTriggerClassification.from_pretrained(args.output_dir, num_labels=len(category_vocab.index_to_category))
+            model = BertForTriggerClassification.from_pretrained(args.model_dir, num_labels=len(category_vocab.index_to_category))
         if args.fp16:
             model.half()
         model.to(device)
         result, preds = evaluate(args, eval_examples, category_vocab, model, device, eval_dataloader)
 
-        with open(os.path.join(args.output_dir, "test_results.txt"), "w") as writer:
+        with open(os.path.join(args.model_dir, "test_results.txt"), "w") as writer:
             for key in result:
                 writer.write("%s = %s\n" % (key, str(result[key])))
-        with open(os.path.join(args.output_dir, "trigger_predictions.json"), "w") as writer:
+        with open(os.path.join(args.model_dir, "trigger_predictions.json"), "w") as writer:
             for line in preds:
                 writer.write(json.dumps(line, default=int) + "\n")
 
@@ -579,6 +584,7 @@ if __name__ == "__main__":
         parser.add_argument("--model", default=None, type=str, required=True)
         parser.add_argument("--output_dir", default=None, type=str, required=True,
                             help="The output directory where the model checkpoints and predictions will be written.")
+        parser.add_argument("--model_dir", default="trigger_qa_output/epoch0-step0", type=str, required=True, help="eval/test model")
         parser.add_argument("--train_file", default=None, type=str)
         parser.add_argument("--dev_file", default=None, type=str)
         parser.add_argument("--test_file", default=None, type=str)

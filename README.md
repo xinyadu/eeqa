@@ -40,7 +40,8 @@ See ```requirements.txt```
 	QA based model ([CLS] verb [SEP] input sentence [SEP]):
 	``` bash ./code/script_trigger_qa.sh ```
 	
-	
+	Note: To get final results on test, you should (1) add --eval_test; (2) set --model to your real model path for test (e.g., trigger\_qa\_output/epoch-x-step-x). Similarly for argument extraction.
+
 * **Argument Extraction**
 
 	- With dynamic threshold:
