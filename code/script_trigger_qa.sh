@@ -23,4 +23,4 @@ python code/run_trigger_qa.py \
   --do_train \
   --do_eval \
   --model bert-base-uncased 
-  # you should (1) add eval_test; (2) set --model to your model path for test (e.g., epoch-x-step-x)
+  # To get final results on test, you need to (1) add eval_test; (2) set --model_dir to your model path for test (e.g., epoch-x-step-x)
