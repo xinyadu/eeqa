@@ -581,7 +581,7 @@ def main(args):
                         optimizer.zero_grad()
                         global_step += 1
 
-                    if (step + 1) % eval_step == 0:
+                    if (step + 1) % eval_step == 0 or step == 0:
                         save_model = False
                         if args.do_eval:
                             # result, _, _ = evaluate(args, model, device, eval_dataset, eval_dataloader, eval_examples, eval_features)
@@ -603,8 +603,10 @@ def main(args):
                                             (args.eval_metric, str(lr), epoch, result["prec_c"], result["recall_c"], result["f1_c"], result["prec_i"], result["recall_i"], result["f1_i"]))
                         else:
                             save_model = True
-                        if int(args.num_train_epochs)-epoch<3 and (step+1)/len(train_batches)>0.7:
+                        if (int(args.num_train_epochs)-epoch<3 and (step+1)/len(train_batches)>0.7) or step == 0:
                             save_model = True
+                        else:
+                            save_model = False
                         if save_model:
                             model_to_save = model.module if hasattr(model, 'module') else model
                             subdir = os.path.join(args.output_dir, "epoch{epoch}-step{step}".format(epoch=epoch, step=step))

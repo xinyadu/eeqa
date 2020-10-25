@@ -37,4 +37,4 @@ python code/run_args_qa.py \
   --do_train \
   --do_eval \
   --model bert-base-uncased \
- # you should (1) add eval_test; (2) set --model to your real model path for test (e.g., epoch-x-step-x)
+ # you should (1) add eval_test; (2) set --model to your model path for test (e.g., epoch-x-step-x)
